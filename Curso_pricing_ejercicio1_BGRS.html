@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pricing & Revenue Management — Ejercicio 1</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --ink: #0f1117;
+    --ink-2: #3a3d47;
+    --ink-3: #6b6f7c;
+    --surface: #f7f8fa;
+    --card: #ffffff;
+    --border: #e4e6eb;
+    --accent: #d63f2e;
+    --accent-light: #fdf0ee;
+    --accent-mid: #f5c4bc;
+    --green: #1a7f52;
+    --green-light: #e8f7f0;
+    --amber: #b45309;
+    --amber-light: #fef3e2;
+    --blue: #1a5fa8;
+    --blue-light: #e8f0fb;
+    --mono: 'JetBrains Mono', monospace;
+    --sans: 'Inter', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--surface);
+    color: var(--ink);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .hero {
+    background: var(--ink);
+    color: #fff;
+    padding: 3rem 2rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -60px;
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    border: 1px solid rgba(214,63,46,0.3);
+  }
+  .hero::after {
+    content: '';
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    border: 1px solid rgba(214,63,46,0.15);
+  }
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 0.75rem;
+  }
+  .hero h1 {
+    font-size: clamp(1.5rem, 4vw, 2.2rem);
+    font-weight: 600;
+    line-height: 1.2;
+    max-width: 520px;
+    margin-bottom: 0.5rem;
+  }
+  .hero-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.55);
+    max-width: 480px;
+  }
+  .hero-badge {
+    display: inline-block;
+    margin-top: 1.25rem;
+    background: rgba(214,63,46,0.15);
+    border: 1px solid rgba(214,63,46,0.4);
+    color: #f5a49a;
+    font-family: var(--mono);
+    font-size: 12px;
+    padding: 4px 14px;
+    border-radius: 100px;
+  }
+
+  .main { max-width: 900px; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+
+  /* ---- section headers ---- */
+  .section-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.14em;
+    color: var(--ink-3);
+    text-transform: uppercase;
+    margin-bottom: 0.5rem;
+  }
+  .section-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 1.25rem;
+  }
+
+  /* ---- P&L comparison ---- */
+  .pnl-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+  @media (max-width: 600px) { .pnl-grid { grid-template-columns: 1fr; } }
+
+  .pnl-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .pnl-card-header {
+    padding: 0.75rem 1rem;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+  }
+  .pnl-card-header.base { background: #f0f4ff; color: var(--blue); border-bottom: 1px solid #c8d8f5; }
+  .pnl-card-header.desc { background: var(--accent-light); color: var(--accent); border-bottom: 1px solid var(--accent-mid); }
+
+  table.pnl { width: 100%; border-collapse: collapse; font-size: 13px; }
+  table.pnl td { padding: 7px 1rem; border-bottom: 1px solid #f2f3f5; }
+  table.pnl tr:last-child td { border-bottom: none; }
+  table.pnl td:last-child { text-align: right; font-family: var(--mono); font-size: 12px; }
+  table.pnl td.label { color: var(--ink-2); }
+  table.pnl td.pct { text-align: right; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+  table.pnl tr.highlight td { background: #f8f9fb; font-weight: 600; }
+  table.pnl tr.total td { background: var(--ink); color: #fff; font-weight: 600; }
+  table.pnl tr.total td { font-family: var(--mono); }
+  table.pnl tr.total td.label { font-family: var(--sans); }
+  table.pnl tr.bad td { background: var(--accent-light); }
+  table.pnl td.red { color: var(--accent); font-weight: 600; }
+  table.pnl td.green { color: var(--green); font-weight: 600; }
+
+  /* ---- delta pill ---- */
+  .delta-col { display: flex; flex-direction: column; justify-content: center; }
+  .delta-pill {
+    background: var(--accent-light);
+    border: 1px solid var(--accent-mid);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+  }
+  .delta-pill .lbl { color: var(--ink-2); }
+  .delta-pill .val { font-family: var(--mono); font-weight: 600; color: var(--accent); }
+  .delta-pill.good { background: var(--green-light); border-color: #9fd4be; }
+  .delta-pill.good .val { color: var(--green); }
+
+  /* ---- solution cards ---- */
+  .solution-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .solution-box.primary { border-left: 3px solid var(--accent); }
+
+  .formula-block {
+    background: var(--ink);
+    color: #e0e4f0;
+    font-family: var(--mono);
+    font-size: 13px;
+    padding: 1rem 1.25rem;
+    border-radius: 8px;
+    margin: 1rem 0;
+    line-height: 1.9;
+    overflow-x: auto;
+  }
+  .formula-block .comment { color: #6b7a99; }
+  .formula-block .result { color: #7dd3a8; font-weight: 600; }
+  .formula-block .key { color: #f5a94a; }
+
+  /* ---- insight cards ---- */
+  .insights-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+  .insight-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.25rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .insight-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+  }
+  .insight-card.risk::before { background: var(--accent); }
+  .insight-card.opp::before { background: var(--green); }
+  .insight-card.strategy::before { background: var(--blue); }
+  .insight-card.warn::before { background: var(--amber); }
+
+  .insight-icon {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  .insight-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 0.4rem;
+  }
+  .insight-card.risk .insight-label { color: var(--accent); }
+  .insight-card.opp .insight-label { color: var(--green); }
+  .insight-card.strategy .insight-label { color: var(--blue); }
+  .insight-card.warn .insight-label { color: var(--amber); }
+
+  .insight-card h4 { font-size: 14px; font-weight: 600; margin-bottom: 0.4rem; }
+  .insight-card p { font-size: 13px; color: var(--ink-2); line-height: 1.55; }
+  .insight-action {
+    margin-top: 0.75rem;
+    padding-top: 0.75rem;
+    border-top: 1px solid var(--border);
+    font-size: 12px;
+    font-weight: 500;
+  }
+  .insight-card.risk .insight-action { color: var(--accent); }
+  .insight-card.opp .insight-action { color: var(--green); }
+  .insight-card.strategy .insight-action { color: var(--blue); }
+  .insight-card.warn .insight-action { color: var(--amber); }
+
+  /* ---- simulator ---- */
+  .simulator {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-top: 1.5rem;
+  }
+  .sim-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem; }
+  @media (max-width: 560px) { .sim-row { grid-template-columns: 1fr; } }
+
+  .sim-group label { font-size: 12px; font-weight: 500; color: var(--ink-2); display: block; margin-bottom: 6px; }
+  .sim-group input[type=range] { width: 100%; accent-color: var(--accent); }
+  .sim-group .val-display {
+    font-family: var(--mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--ink);
+    margin-top: 2px;
+  }
+
+  .sim-result {
+    margin-top: 1.25rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 0.75rem;
+  }
+  .sim-metric {
+    background: var(--surface);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    text-align: center;
+  }
+  .sim-metric .m-label { font-size: 11px; color: var(--ink-3); margin-bottom: 4px; }
+  .sim-metric .m-val { font-family: var(--mono); font-size: 1rem; font-weight: 600; }
+  .sim-metric.warn .m-val { color: var(--accent); }
+  .sim-metric.good .m-val { color: var(--green); }
+  .sim-metric.neutral .m-val { color: var(--blue); }
+
+  .sim-verdict {
+    margin-top: 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    text-align: center;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* ---- vol table ---- */
+  .vol-table-wrap { overflow-x: auto; margin-top: 1rem; }
+  table.vt { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+  table.vt th { background: var(--ink); color: #fff; padding: 8px 12px; text-align: right; font-family: var(--mono); font-weight: 500; font-size: 11px; }
+  table.vt th:first-child { text-align: left; }
+  table.vt td { padding: 7px 12px; border-bottom: 1px solid var(--border); text-align: right; font-family: var(--mono); font-size: 12px; }
+  table.vt td:first-child { text-align: left; font-family: var(--sans); font-size: 13px; color: var(--ink-2); }
+  table.vt tr.highlight-row td { background: var(--green-light); font-weight: 600; color: var(--green); }
+  table.vt tr.highlight-row td:first-child { color: var(--green); }
+  table.vt tr:hover td { background: #f5f6f8; }
+
+  /* ---- dividers ---- */
+  .section-sep { height: 1px; background: var(--border); margin: 2.5rem 0; }
+
+  /* ---- key number ---- */
+  .key-number-row {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin: 1.25rem 0;
+  }
+  .key-number {
+    flex: 1;
+    min-width: 160px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.25rem;
+  }
+  .key-number .kn-label { font-size: 11px; color: var(--ink-3); margin-bottom: 4px; }
+  .key-number .kn-val { font-family: var(--mono); font-size: 1.35rem; font-weight: 600; }
+  .key-number .kn-sub { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+  .key-number.accent .kn-val { color: var(--accent); }
+  .key-number.green .kn-val { color: var(--green); }
+  .key-number.blue .kn-val { color: var(--blue); }
+
+  .note-box {
+    background: var(--amber-light);
+    border-left: 3px solid var(--amber);
+    border-radius: 0 8px 8px 0;
+    padding: 0.75rem 1rem;
+    font-size: 13px;
+    color: #78420a;
+    margin-top: 1rem;
+    line-height: 1.6;
+  }
+  .note-box strong { color: var(--amber); }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-eyebrow">Pacífico Business School · Pricing & Revenue Management</div>
+  <h1>¿Cuánto volumen necesitas vender para sobrevivir un descuento del 5%?</h1>
+  <p class="hero-sub">Ejercicio 1 — Análisis completo con resolución paso a paso, simulador interactivo e insights accionables para la toma de decisiones.</p>
+  <div class="hero-badge">Margen operativo objetivo: S/ 71,200 · 13.5%</div>
+  <div class="hero-badge">Alumno: Brigitt Geraldin Ramirez Saccaco</div>
+</div>
+
+<div class="main">
+
+  <!-- ======= BLOQUE 1: ESTADO DE RESULTADOS ======= -->
+  <div class="section-label">Paso 1</div>
+  <div class="section-title">Comparación del estado de resultados</div>
+
+  <div class="pnl-grid">
+    <div class="pnl-card">
+      <div class="pnl-card-header base">📊 Escenario BASE — Sin descuento</div>
+      <table class="pnl">
+        <tr><td class="label">Ventas</td><td>528,000</td><td class="pct">100.0%</td></tr>
+        <tr><td class="label">Unidades (Q)</td><td>4,800</td><td class="pct">—</td></tr>
+        <tr><td class="label">Precio (P)</td><td>110</td><td class="pct">—</td></tr>
+        <tr class="highlight"><td class="label">Costo de Ventas</td><td>184,800</td><td class="pct">35.0%</td></tr>
+        <tr class="highlight"><td class="label">Margen Bruto</td><td class="green">343,200</td><td class="pct">65.0%</td></tr>
+        <tr><td class="label">Personal</td><td>132,000</td><td class="pct">25.0%</td></tr>
+        <tr><td class="label">Marketing</td><td>28,000</td><td class="pct">5.3%</td></tr>
+        <tr><td class="label">Gastos Admin.</td><td>80,000</td><td class="pct">15.2%</td></tr>
+        <tr><td class="label">Otros Costos</td><td>32,000</td><td class="pct">6.1%</td></tr>
+        <tr class="total"><td class="label">Margen Operativo</td><td>71,200</td><td>13.5%</td></tr>
+      </table>
+    </div>
+
+    <div class="pnl-card">
+      <div class="pnl-card-header desc">🔴 Escenario DESCUENTO 5% — Sin ajuste de volumen</div>
+      <table class="pnl">
+        <tr><td class="label">Ventas</td><td>501,600</td><td class="pct">100.0%</td></tr>
+        <tr><td class="label">Unidades (Q)</td><td>4,800</td><td class="pct">—</td></tr>
+        <tr><td class="label">Precio (P)</td><td class="red">104.5</td><td class="pct">−5.0%</td></tr>
+        <tr class="highlight"><td class="label">Costo de Ventas</td><td>175,560</td><td class="pct">35.0%</td></tr>
+        <tr class="highlight"><td class="label">Margen Bruto</td><td class="red">326,040</td><td class="pct">65.0%</td></tr>
+        <tr><td class="label">Personal</td><td>132,000</td><td class="pct">26.3%</td></tr>
+        <tr><td class="label">Marketing</td><td>28,000</td><td class="pct">5.6%</td></tr>
+        <tr><td class="label">Gastos Admin.</td><td>80,000</td><td class="pct">15.9%</td></tr>
+        <tr><td class="label">Otros Costos</td><td>32,000</td><td class="pct">6.4%</td></tr>
+        <tr class="total bad"><td class="label" style="color:#f5a49a">Margen Operativo</td><td style="color:#f5a49a">54,040</td><td style="color:#f5a49a">10.8%</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="key-number-row">
+    <div class="key-number accent">
+      <div class="kn-label">Caída en margen operativo</div>
+      <div class="kn-val">−S/ 17,160</div>
+      <div class="kn-sub">De 71,200 a 54,040 (−24.1%)</div>
+    </div>
+    <div class="key-number blue">
+      <div class="kn-label">Nuevo precio con 5% dto.</div>
+      <div class="kn-val">S/ 104.50</div>
+      <div class="kn-sub">Antes: S/ 110.00</div>
+    </div>
+    <div class="key-number">
+      <div class="kn-label">Margen bruto — se mantiene</div>
+      <div class="kn-val">65.0%</div>
+      <div class="kn-sub">Costo variable baja con precio</div>
+    </div>
+  </div>
+
+  <div class="note-box">
+    <strong>Observación clave:</strong> Aunque el margen bruto porcentual se mantiene en 65%, los costos fijos (Personal, Admin., Otros) no cambian. Eso significa que cada sol menos de precio se convierte directamente en pérdida operativa. Un descuento del 5% en precio destruye el 24% del margen operativo. Esta asimetría es el núcleo del ejercicio.
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ======= BLOQUE 2: RESOLUCIÓN ======= -->
+  <div class="section-label">Paso 2</div>
+  <div class="section-title">Resolución: volumen mínimo para recuperar el margen operativo</div>
+
+  <div class="solution-box primary">
+    <p style="font-size:13px; color:var(--ink-2); margin-bottom:1.25rem;">
+      Encontrar <strong>Q*</strong> tal que, con precio reducido a S/ 104.50, el margen operativo se mantenga en S/ 71,200.
+    </p>
+
+    <!-- PASOS VISUALES -->
+    <div style="display:flex; flex-direction:column; gap:0;">
+
+      <!-- PASO 1 -->
+      <div style="display:grid; grid-template-columns:28px 1fr; gap:0 14px; align-items:start; margin-bottom:1px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">1</div>
+        <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:0.7rem 1rem;">
+          <div style="font-size:10px;font-family:var(--mono);letter-spacing:0.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:6px;">Nuevo precio</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <span style="font-family:var(--mono);font-size:13px;color:var(--ink-2);">P* = 110 × (1 − 0.05)</span>
+            <span style="color:var(--ink-3);">=</span>
+            <span style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--blue);">S/ 104.50</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="width:1px;height:10px;background:var(--border);margin-left:13px;"></div>
+
+      <!-- PASO 2 -->
+      <div style="display:grid; grid-template-columns:28px 1fr; gap:0 14px; align-items:start; margin-bottom:1px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">2</div>
+        <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:0.7rem 1rem;">
+          <div style="font-size:10px;font-family:var(--mono);letter-spacing:0.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:6px;">Margen de contribución unitario</div>
+          <div style="display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:4px 8px;align-items:center;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-family:var(--mono);font-size:13px;">104.50</div>
+              <div style="font-size:10px;color:var(--ink-3);">precio nuevo</div>
+            </div>
+            <span style="font-size:16px;color:var(--ink-3);">−</span>
+            <div style="text-align:center;">
+              <div style="font-family:var(--mono);font-size:13px;">36.575</div>
+              <div style="font-size:10px;color:var(--ink-3);">104.50 × 35%</div>
+            </div>
+            <span style="font-size:16px;color:var(--ink-3);">=</span>
+            <div style="text-align:center;">
+              <div style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--blue);">67.925</div>
+              <div style="font-size:10px;color:var(--ink-3);">MCU por unidad</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="width:1px;height:10px;background:var(--border);margin-left:13px;"></div>
+
+      <!-- PASO 3 -->
+      <div style="display:grid; grid-template-columns:28px 1fr; gap:0 14px; align-items:start; margin-bottom:1px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">3</div>
+        <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:0.7rem 1rem;">
+          <div style="font-size:10px;font-family:var(--mono);letter-spacing:0.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:6px;">Costos fijos totales</div>
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+            <span style="background:var(--border);border-radius:4px;padding:2px 7px;font-family:var(--mono);font-size:12px;">132,000</span>
+            <span style="font-size:11px;color:var(--ink-3);">Personal</span>
+            <span style="color:var(--ink-3)">+</span>
+            <span style="background:var(--border);border-radius:4px;padding:2px 7px;font-family:var(--mono);font-size:12px;">28,000</span>
+            <span style="font-size:11px;color:var(--ink-3);">Marketing</span>
+            <span style="color:var(--ink-3)">+</span>
+            <span style="background:var(--border);border-radius:4px;padding:2px 7px;font-family:var(--mono);font-size:12px;">80,000</span>
+            <span style="font-size:11px;color:var(--ink-3);">Admin</span>
+            <span style="color:var(--ink-3)">+</span>
+            <span style="background:var(--border);border-radius:4px;padding:2px 7px;font-family:var(--mono);font-size:12px;">32,000</span>
+            <span style="font-size:11px;color:var(--ink-3);">Otros</span>
+            <span style="color:var(--ink-3)">=</span>
+            <span style="font-family:var(--mono);font-size:14px;font-weight:600;color:var(--blue);">272,000</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="width:1px;height:10px;background:var(--border);margin-left:13px;"></div>
+
+      <!-- PASO 4 -->
+      <div style="display:grid; grid-template-columns:28px 1fr; gap:0 14px; align-items:start; margin-bottom:1px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--ink);color:#fff;font-family:var(--mono);font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">4</div>
+        <div style="background:#f8f9fb;border:1px solid var(--border);border-radius:8px;padding:0.7rem 1rem;">
+          <div style="font-size:10px;font-family:var(--mono);letter-spacing:0.1em;color:var(--ink-3);text-transform:uppercase;margin-bottom:6px;">Fórmula y despeje de Q*</div>
+          <div style="font-family:var(--mono);font-size:13px;color:var(--ink-2);line-height:2;">
+            MO = (MCU × Q*) − CF &nbsp;→&nbsp; Q* = (MO + CF) / MCU<br>
+            Q* = (71,200 + 272,000) / 67.925 &nbsp;=&nbsp; 343,200 / 67.925
+          </div>
+        </div>
+      </div>
+
+      <div style="width:1px;height:10px;background:var(--border);margin-left:13px;"></div>
+
+      <!-- RESULTADO -->
+      <div style="display:grid; grid-template-columns:28px 1fr; gap:0 14px; align-items:start;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--green);color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;">✓</div>
+        <div style="background:var(--green-light);border:1px solid #9fd4be;border-radius:8px;padding:0.85rem 1rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:10px;font-family:var(--mono);letter-spacing:0.1em;color:var(--green);text-transform:uppercase;margin-bottom:4px;">Resultado</div>
+            <div style="font-family:var(--mono);font-size:1.4rem;font-weight:600;color:var(--green);">Q* = 5,053 unidades</div>
+          </div>
+          <div style="background:#fff;border-radius:6px;padding:0.5rem 0.85rem;font-size:12px;color:var(--ink-2);">
+            Ventas: 5,053 × 104.50 = <strong>S/ 528,041</strong><br>
+            M. Bruto: 528,041 × 65% = <strong>S/ 343,227</strong><br>
+            − CF 272,000 = <strong style="color:var(--green);">S/ 71,200 ✓</strong>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="key-number-row">
+      <div class="key-number green">
+        <div class="kn-label">Volumen mínimo requerido (Q*)</div>
+        <div class="kn-val">5,053 unidades</div>
+        <div class="kn-sub">+253 unidades sobre el base (4,800)</div>
+      </div>
+      <div class="key-number accent">
+        <div class="kn-label">Incremento de volumen necesario</div>
+        <div class="kn-val">+5.27%</div>
+        <div class="kn-sub">Sobre el volumen actual</div>
+      </div>
+      <div class="key-number blue">
+        <div class="kn-label">Margen contribución unitario nuevo</div>
+        <div class="kn-val">S/ 67.925</div>
+        <div class="kn-sub">vs S/ 71.50 en escenario base</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tabla de sensibilidad -->
+  <div class="solution-box">
+    <div class="section-label">Análisis de sensibilidad</div>
+    <p style="font-size:13px; color:var(--ink-2); margin-bottom:0.75rem;">¿Qué pasa si el mercado responde menos de lo esperado? Volumen necesario para distintos niveles de descuento:</p>
+    <div class="vol-table-wrap">
+      <table class="vt">
+        <thead>
+          <tr>
+            <th style="text-align:left">Descuento</th>
+            <th>Precio</th>
+            <th>MCU</th>
+            <th>Q* requerido</th>
+            <th>Δ Volumen</th>
+            <th>Δ% Volumen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>0% (base)</td><td>110.00</td><td>71.50</td><td>4,800</td><td>—</td><td>—</td></tr>
+          <tr><td>2%</td><td>107.80</td><td>70.07</td><td>4,897</td><td>+97</td><td>+2.0%</td></tr>
+          <tr><td>3%</td><td>106.70</td><td>69.355</td><td>4,948</td><td>+148</td><td>+3.1%</td></tr>
+          <tr class="highlight-row"><td>5% ← ejercicio</td><td>104.50</td><td>67.925</td><td>5,053</td><td>+253</td><td>+5.27%</td></tr>
+          <tr><td>8%</td><td>101.20</td><td>65.78</td><td>5,201</td><td>+401</td><td>+8.4%</td></tr>
+          <tr><td>10%</td><td>99.00</td><td>64.35</td><td>5,305</td><td>+505</td><td>+10.5%</td></tr>
+          <tr><td>15%</td><td>93.50</td><td>60.775</td><td>5,647</td><td>+847</td><td>+17.6%</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="note-box" style="margin-top:1rem;">
+      <strong>Patrón clave:</strong> el volumen requerido siempre crece más rápido que el descuento. Un descuento del 10% exige +10.5% más volumen — no es proporcional: cuanto mayor el descuento, mayor el esfuerzo de recuperación porque la base de margen se achica.
+    </div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ======= BLOQUE 3: SIMULADOR ======= -->
+  <div class="section-label">Herramienta interactiva</div>
+  <div class="section-title">Simulador de punto de equilibrio por descuento</div>
+
+  <div class="simulator">
+    <p style="font-size:13px; color:var(--ink-2);">Ajusta el descuento y el margen objetivo para ver en tiempo real el volumen mínimo requerido.</p>
+    <div class="sim-row">
+      <div class="sim-group">
+        <label>Descuento en precio (%)</label>
+        <input type="range" id="sim-dto" min="0" max="25" step="0.5" value="5">
+        <div class="val-display"><span id="dto-val">5.0</span>%</div>
+      </div>
+      <div class="sim-group">
+        <label>Margen operativo objetivo (S/)</label>
+        <input type="range" id="sim-mo" min="20000" max="100000" step="1000" value="71200">
+        <div class="val-display">S/ <span id="mo-val">71,200</span></div>
+      </div>
+    </div>
+
+    <div class="sim-result">
+      <div class="sim-metric neutral">
+        <div class="m-label">Precio nuevo</div>
+        <div class="m-val" id="r-precio">S/ 104.50</div>
+      </div>
+      <div class="sim-metric neutral">
+        <div class="m-label">MCU nuevo</div>
+        <div class="m-val" id="r-mcu">S/ 67.93</div>
+      </div>
+      <div class="sim-metric warn">
+        <div class="m-label">Q* mínimo</div>
+        <div class="m-val" id="r-q">5,053</div>
+      </div>
+      <div class="sim-metric warn">
+        <div class="m-label">Δ unidades</div>
+        <div class="m-val" id="r-delta">+253</div>
+      </div>
+      <div class="sim-metric warn">
+        <div class="m-label">Δ% volumen</div>
+        <div class="m-val" id="r-pct">+5.27%</div>
+      </div>
+    </div>
+
+    <div class="sim-verdict" id="verdict"></div>
+  </div>
+
+  <div class="section-sep"></div>
+
+  <!-- ======= BLOQUE 4: INSIGHTS ======= -->
+  <div class="section-label">Valor agregado</div>
+  <div class="section-title">Insights accionables para la decisión gerencial</div>
+
+  <div class="insights-grid">
+
+    <div class="insight-card risk">
+      <div class="insight-label">Riesgo crítico</div>
+      <h4>−5% precio = −24% margen operativo</h4>
+      <p>El margen reacciona 4.8× más fuerte que el descuento. Los costos fijos no bajan: toda la caída de ingresos golpea directo al resultado.</p>
+      <div class="insight-action">→ Siempre calcular el múltiplo de destrucción de margen antes de aprobar un descuento.</div>
+    </div>
+
+    <div class="insight-card opp">
+      <div class="insight-label">Condición de viabilidad</div>
+      <h4>El descuento necesita elasticidad ≥ 1.05 para ser neutro</h4>
+      <p>Si la elasticidad precio del mercado es menor que la requerida, el descuento destruye valor neto. Medir primero, decidir después.</p>
+      <div class="insight-action">→ Estimar elasticidad antes del descuento, no como postmortem.</div>
+    </div>
+
+    <div class="insight-card strategy">
+      <div class="insight-label">Alternativa estratégica</div>
+      <h4>No bajes el precio base — usa palancas segmentadas</h4>
+      <p>Bundle pricing, descuentos por volumen o por canal generan el mismo efecto sin erosionar el precio de referencia del mercado.</p>
+      <div class="insight-action">→ El precio base es difícil de recuperar. Preservarlo es una ventaja competitiva.</div>
+    </div>
+
+    <div class="insight-card warn">
+      <div class="insight-label">Apalancamiento operativo</div>
+      <h4>59.5% de costos fijos penaliza cualquier descuento</h4>
+      <p>A mayor proporción de costos fijos, mayor el daño por descuento. Esta empresa no debería competir en precio sin antes flexibilizar su estructura de costos.</p>
+      <div class="insight-action">→ Reducir costos fijos antes de usar precio como arma competitiva.</div>
+    </div>
+
+    <div class="insight-card strategy">
+      <div class="insight-label">Cuando sí aplica</div>
+      <h4>Con capacidad ociosa, Q* es conservador</h4>
+      <p>Si hay inventario o capacidad sin usar, el costo marginal de las 253 unidades adicionales se acerca a cero. El descuento puede ser rentable incluso antes de alcanzar el Q* teórico.</p>
+      <div class="insight-action">→ Modelar costo marginal real, no solo el promedio del P&L.</div>
+    </div>
+
+    <div class="insight-card risk">
+      <div class="insight-label">Decisión ejecutiva</div>
+      <h4>¿Podemos vender 5,053 unidades? Esa es la pregunta real</h4>
+      <p>El ejercicio resuelve el cuánto. La decisión gerencial requiere además saber si el mercado lo permite y si la demanda incremental no canibaliza el segmento regular.</p>
+      <div class="insight-action">→ Análisis financiero + análisis de mercado = decisión de pricing completa.</div>
+    </div>
+
+  </div>
+
+  <!-- resumen ejecutivo -->
+  <div class="solution-box" style="margin-top:2rem; background:#f7f8fa;">
+    <div class="section-label">Conclusión ejecutiva</div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-top:0.5rem;">
+      <div>
+        <div style="font-size:11px;color:var(--ink-3);margin-bottom:4px;">Fórmula clave</div>
+        <div style="font-family:var(--mono);font-size:13px;background:#fff;border:1px solid var(--border);border-radius:6px;padding:0.6rem 0.85rem;line-height:1.8;">
+          Q* = (CF + MO) / MCU<br>
+          Q* = (272,000 + 71,200) / 67.925<br>
+          <strong style="color:var(--green);">Q* = 5,053 unidades</strong>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:11px;color:var(--ink-3);margin-bottom:4px;">Lectura gerencial</div>
+        <div style="font-size:13px;color:var(--ink-2);line-height:1.65;">
+          Un <strong>−5% en precio</strong> exige <strong>+5.27% en volumen</strong> para ser neutro en margen. Con 59.5% de costos fijos, la empresa amplifica cualquier variación de ingresos. El descuento es viable solo si la elasticidad del mercado lo respalda.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const P0 = 110, Q0 = 4800, CV_PCT = 0.35;
+  const FIJOS = 272000;
+  const MO0 = 71200;
+
+  const simDto = document.getElementById('sim-dto');
+  const simMo  = document.getElementById('sim-mo');
+  const dtoVal = document.getElementById('dto-val');
+  const moVal  = document.getElementById('mo-val');
+
+  function fmt(n) { return n.toLocaleString('es-PE', {maximumFractionDigits:0}); }
+  function fmtD(n) { return n.toFixed(2); }
+
+  function update() {
+    const dto = parseFloat(simDto.value) / 100;
+    const moObj = parseFloat(simMo.value);
+
+    const pNuevo = P0 * (1 - dto);
+    const cvUnit = pNuevo * CV_PCT;
+    const mcu = pNuevo - cvUnit;
+    const qStar = (moObj + FIJOS) / mcu;
+    const delta = qStar - Q0;
+    const deltaPct = (delta / Q0) * 100;
+
+    dtoVal.textContent = (dto * 100).toFixed(1);
+    moVal.textContent = fmt(moObj);
+    document.getElementById('r-precio').textContent = 'S/ ' + fmtD(pNuevo);
+    document.getElementById('r-mcu').textContent = 'S/ ' + fmtD(mcu);
+    document.getElementById('r-q').textContent = fmt(Math.ceil(qStar));
+    document.getElementById('r-delta').textContent = (delta >= 0 ? '+' : '') + fmt(Math.ceil(delta));
+    document.getElementById('r-pct').textContent = (deltaPct >= 0 ? '+' : '') + deltaPct.toFixed(2) + '%';
+
+    const verdict = document.getElementById('verdict');
+    if (dto === 0) {
+      verdict.style.background = '#e8f0fb';
+      verdict.style.color = '#1a5fa8';
+      verdict.textContent = 'Sin descuento: el volumen base de 4,800 unidades es suficiente para alcanzar el margen objetivo.';
+    } else if (deltaPct < 5) {
+      verdict.style.background = '#e8f7f0';
+      verdict.style.color = '#1a7f52';
+      verdict.textContent = `Descuento bajo (${(dto*100).toFixed(1)}%): recuperable con un esfuerzo de ventas razonable (+${deltaPct.toFixed(1)}% volumen). Viable si la elasticidad lo respalda.`;
+    } else if (deltaPct < 12) {
+      verdict.style.background = '#fef3e2';
+      verdict.style.color = '#b45309';
+      verdict.textContent = `Descuento moderado (${(dto*100).toFixed(1)}%): requiere un esfuerzo de ventas importante (+${deltaPct.toFixed(1)}% volumen). Evaluar elasticidad y capacidad operativa antes de aprobar.`;
+    } else {
+      verdict.style.background = '#fdf0ee';
+      verdict.style.color = '#d63f2e';
+      verdict.textContent = `Descuento agresivo (${(dto*100).toFixed(1)}%): requiere +${deltaPct.toFixed(1)}% más volumen. Con la estructura de costos fijos actual, este nivel de descuento es de muy alto riesgo para el margen operativo.`;
+    }
+  }
+
+  simDto.addEventListener('input', update);
+  simMo.addEventListener('input', update);
+  update();
+</script>
+
+</body>
+</html>
