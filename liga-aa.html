@@ -1,0 +1,170 @@
+<title>Liga AA</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@500;600&display=swap">
+<style>
+/* Layout: deck vertical de 6 láminas tipo "tarjeta de marcación"; cada lámina es una banda con su número y el punto clave arriba */
+:root{
+  --bg:#f3f4f8; --card:#ffffff; --ink:#1c2240; --muted:#5b6180; --line:#dcdfea;
+  --accent:#d98a1f; --accent-soft:#fbefdc; --teal:#2b7a74; --teal-soft:#e0f0ee; --neg:#b4473a;
+  --cover:#151a33; --cover-fg:#f3f4f8; --cover-dim:#a9afcb;
+  --display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#12162a; --card:#1b2038; --ink:#eceef7; --muted:#a2a8c4; --line:#2c3252;
+  --accent:#f0a940; --accent-soft:#3a2e1a; --teal:#5cc0b6; --teal-soft:#183532; --neg:#e57a6c; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12162a; --card:#1b2038; --ink:#eceef7; --muted:#a2a8c4; --line:#2c3252;
+  --accent:#f0a940; --accent-soft:#3a2e1a; --teal:#5cc0b6; --teal-soft:#183532; --neg:#e57a6c; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:32px 64px}
+.deck{max-width:960px;margin:0 auto;display:flex;flex-direction:column;gap:28px}
+.slide{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:clamp(24px,5vw,48px);display:flex;flex-direction:column;gap:20px;min-width:0}
+.tag{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;line-height:1.1}
+h1{font-size:clamp(40px,8vw,76px);font-weight:800;letter-spacing:-.02em}
+h2{font-size:clamp(26px,4.4vw,38px);font-weight:700;letter-spacing:-.01em}
+h3{font-size:19px;font-weight:700}
+p{margin:0;max-width:65ch}
+.lead{font-size:clamp(17px,2.2vw,20px);color:var(--muted)}
+.hl{color:var(--accent)}
+/* portada */
+.cover{background:radial-gradient(110% 85% at 100% 0%, color-mix(in srgb,var(--accent) 30%,var(--cover)) 0%, var(--cover) 58%);color:var(--cover-fg);border:none;position:relative;overflow:hidden}
+.cover .tag,.cover .lead{color:var(--cover-dim)}
+.cover .hl{color:var(--accent)}
+.hero{display:flex;flex-direction:column;gap:14px;position:relative}
+.season{align-self:flex-start;font-family:var(--mono);font-size:12.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);border-radius:999px;padding:6px 14px;display:inline-flex;gap:10px;align-items:center}
+.season i{width:8px;height:8px;border-radius:50%;background:var(--accent);box-shadow:0 0 0 4px color-mix(in srgb,var(--accent) 30%,transparent)}
+.league{display:flex;align-items:flex-end;flex-wrap:wrap;gap:0 .18em;font-size:clamp(76px,19vw,188px);font-weight:800;line-height:.82;letter-spacing:-.045em;text-transform:uppercase;text-wrap:nowrap}
+.league .aa{color:var(--accent);font-style:normal;display:inline-block;transform:skewX(-9deg);position:relative}
+.league .aa::after{content:"";position:absolute;left:4%;right:-2%;bottom:-.1em;height:.11em;background:repeating-linear-gradient(-45deg,var(--accent) 0 12px,transparent 12px 20px)}
+.cover-mark{position:absolute;right:-.06em;bottom:-.24em;font-family:var(--display);font-weight:800;font-size:clamp(180px,42vw,420px);line-height:1;color:transparent;-webkit-text-stroke:1.5px color-mix(in srgb,var(--cover-fg) 9%,transparent);pointer-events:none;user-select:none}
+.cover > *:not(.cover-mark){position:relative}
+.punch{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.punch span{font-family:var(--mono);font-size:13px;padding:6px 10px;border:1px dashed color-mix(in srgb,var(--cover-fg) 40%,transparent);border-radius:6px}
+.punch span.on{background:var(--accent);color:var(--cover);border-color:var(--accent);font-weight:600}
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:8px}
+.fact{border-top:2px solid var(--accent);padding-top:10px}
+.fact b{display:block;font-family:var(--display);font-size:20px}
+.fact small{font-size:14px;color:var(--cover-dim)}
+/* criterios */
+.crit{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:84px 1fr auto;gap:16px;align-items:center;padding:14px 16px;border:1px solid var(--line);border-radius:10px}
+.pts{font-family:var(--mono);font-weight:600;font-size:22px;color:var(--teal);font-variant-numeric:tabular-nums}
+.row.neg .pts{color:var(--neg)}
+.row.top{background:var(--teal-soft);border-color:transparent}
+.row p{font-size:14.5px;color:var(--muted)}
+.cap{font-family:var(--mono);font-size:12px;padding:4px 8px;border-radius:999px;background:var(--accent-soft);color:var(--ink);white-space:nowrap}
+.cap.none{background:transparent;color:var(--muted)}
+/* mesas */
+.mesas{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.mesa{border:1px solid var(--line);border-radius:12px;padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.evaluator{display:flex;align-items:center;gap:12px}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:17px;flex:none}
+.av.b{background:var(--accent);color:#1c2240}
+.av.j{background:var(--teal);color:#ffffff}
+.evaluator small{display:block;font-size:13px;color:var(--muted)}
+.people{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:6px 12px;border-radius:999px;background:var(--bg);border:1px solid var(--line);font-size:14.5px;font-weight:500}
+.floater{grid-column:1/-1;border:1.5px dashed var(--accent);border-radius:12px;padding:16px 20px;display:flex;gap:14px;align-items:center;flex-wrap:wrap}
+.floater .chip{background:var(--accent-soft);border-color:transparent}
+/* flujo */
+.flow{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;counter-reset:s}
+.step{border-left:2px solid var(--teal);padding:4px 0 4px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.step .n{font-family:var(--mono);font-size:12px;color:var(--teal);letter-spacing:.06em}
+.step p{font-size:14.5px;color:var(--muted)}
+.tie{display:flex;gap:16px;align-items:center;background:var(--accent-soft);border-radius:12px;padding:18px 20px;flex-wrap:wrap}
+.tie .av{background:var(--ink);color:var(--bg)}
+/* reglas */
+.rules{display:grid;grid-template-columns:1fr 1fr;gap:14px 28px}
+.rule{display:flex;flex-direction:column;gap:4px;padding-top:12px;border-top:1px solid var(--line)}
+.rule p{font-size:15px;color:var(--muted)}
+/* calendario */
+.months{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.month{border:1px solid var(--line);border-radius:12px;padding:18px;display:flex;flex-direction:column;gap:8px}
+.month.pilot{background:var(--teal-soft);border-color:transparent}
+.month .lbl{font-family:var(--mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.month p{font-size:14.5px;color:var(--muted)}
+.foot{font-size:13px;color:var(--muted);text-align:center}
+@media (max-width:680px){
+  .mesas,.rules,.months{grid-template-columns:1fr}
+  .flow{grid-template-columns:1fr}
+  .row{grid-template-columns:64px 1fr}
+  .row .cap{grid-column:2;justify-self:start}
+}
+</style>
+
+<main class="deck">
+
+<section class="slide cover" aria-label="Portada">
+  <div class="tag"><span>Advanced Analytics · Alicorp</span><span>01 / 05</span></div>
+  <span class="cover-mark" aria-hidden="true">AA</span>
+  <div class="hero">
+    <span class="season"><i></i>Temporada 2026 · Fecha 1: Octubre</span>
+    <h1 class="league"><span>Liga</span><span class="aa">AA</span></h1>
+  </div>
+  <p class="lead">Un sistema mensual para reconocer lo que hace grande al equipo: colaborar, adaptarse, pensar distinto, mejorar cómo trabajamos y sacar lo difícil.</p>
+  <div class="punch" aria-hidden="true"><span>LUN</span><span>MAR</span><span>MIÉ</span><span>JUE</span><span class="on">VIE · día libre</span></div>
+  <div class="facts">
+    <div class="fact"><b>El premio</b><small>La mañana del viernes libre. Sumada a la tarde libre de siempre, el viernes queda libre completo.</small></div>
+    <div class="fact"><b>Cada mes</b><small>Un ganador por mesa, anunciado al cierre de mes.</small></div>
+    <div class="fact"><b>Acuerdo interno</b><small>Validado con Lead AA. Se maneja dentro del equipo.</small></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Criterios">
+  <div class="tag"><span>Cómo se suman puntos</span><span>02 / 05</span></div>
+  <h2>Seis criterios, y la colaboración es la que más pesa</h2>
+  <p class="lead">Los puntos se ganan por evento, con un hecho concreto detrás: qué pasó, cuándo y qué impacto tuvo.</p>
+  <div class="crit">
+    <div class="row top"><span class="pts">+30</span><div><h3>Colaboración y apoyo</h3><p>Ayudas a un compañero a destrabarse, compartes código o plantillas, enseñas algo.</p></div><span class="cap none">sin tope</span></div>
+    <div class="row"><span class="pts">+25</span><div><h3>Salvar el día</h3><p>Sacas con calidad una tarea urgente que llegó de la nada o una especialmente difícil.</p></div><span class="cap">máx. 2 / mes</span></div>
+    <div class="row"><span class="pts">+20</span><div><h3>Presentación de impacto</h3><p>Presentas al usuario algo claro y riguroso que genera una decisión o una acción.</p></div><span class="cap none">sin tope</span></div>
+    <div class="row"><span class="pts">+15</span><div><h3>Adaptabilidad</h3><p>Ajustas tu enfoque cuando cambia el pedido o los datos, sin perder calidad.</p></div><span class="cap none">sin tope</span></div>
+    <div class="row"><span class="pts">+10<br><small style="font-size:12px">/ +20</small></span><div><h3>Pensar distinto</h3><p>Propones una alternativa con datos o argumentos, aunque contradiga a tu líder. Suma 10 por proponer y 20 si se adopta.</p></div><span class="cap">máx. 2 / mes</span></div>
+    <div class="row"><span class="pts">+15</span><div><h3>Mejora continua</h3><p>Identificas oportunidades para simplificar procesos, automatizar tareas o mejorar la calidad de nuestros entregables. Incluye documentar una lógica, proceso o aprendizaje que permita que otros trabajen sin depender de una persona.</p></div><span class="cap none">sin tope</span></div>
+    <div class="row neg"><span class="pts">−5</span><div><h3>Impuntualidad sin aviso</h3><p>Llegar tarde a una reunión o pasarse de una fecha comprometida sin avisar antes. La primera del mes no cuenta.</p></div><span class="cap none">resta</span></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Cómo se elige">
+  <div class="tag"><span>Cómo se elige al ganador</span><span>03 / 05</span></div>
+  <h2>Un ganador por mesa, cada mes</h2>
+  <div class="flow">
+    <div class="step"><span class="n">PASO 1 · DURANTE EL MES</span><h3>Registrar</h3><p>Cada punto se anota con su evidencia en el tracker compartido.</p></div>
+    <div class="step"><span class="n">PASO 2 · CIERRE</span><h3>Validar</h3><p>Se revisan y confirman los puntos de cada persona.</p></div>
+    <div class="step"><span class="n">PASO 3 · CIERRE</span><h3>Premiar</h3><p>Gana quien más suma en cada mesa y se anuncia en equipo.</p></div>
+  </div>
+  <div class="tie">
+    <span class="av">JB</span>
+    <div><h3>Si hay empate, decide Julio</h3><p>Julio tiene el voto dirimente. Revisa la evidencia de los empatados y define al ganador.</p></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Reglas">
+  <div class="tag"><span>Reglas para que sea justo</span><span>04 / 05</span></div>
+  <h2>Lo que mantiene el sistema limpio</h2>
+  <div class="rules">
+    <div class="rule"><h3>Cada punto con evidencia</h3><p>Qué pasó, cuándo y qué impacto tuvo. Sin evidencia, no suma.</p></div>
+    <div class="rule"><h3>Registro abierto</h3><p>Todos ven qué suma cada uno y por qué.</p></div>
+    <div class="rule"><h3>Salvar el día no premia el caos</h3><p>Si la urgencia nació de una mala planificación propia, no suma.</p></div>
+    <div class="rule"><h3>Contradecir con argumentos suma</h3><p>Pensar distinto se reconoce en público, aunque la idea no se adopte.</p></div>
+    <div class="rule"><h3>Reinicio mensual</h3><p>Los puntos no se acumulan de un mes a otro.</p></div>
+    <div class="rule"><h3>Topes por criterio</h3><p>Nadie gana solo con una categoría.</p></div>
+  </div>
+</section>
+
+<section class="slide" aria-label="Calendario">
+  <div class="tag"><span>Cómo arrancamos</span><span>05 / 05</span></div>
+  <h2>Arrancamos este mes</h2>
+  <div class="months">
+    <div class="month pilot"><span class="lbl">Octubre · desde hoy</span><h3>Empezamos a registrar</h3><p>Cada punto de octubre se anota con su evidencia en el tracker. Ya cuenta para el premio.</p></div>
+    <div class="month"><span class="lbl">Cierre de mes</span><h3>Ganador por mesa</h3><p>Se validan los puntos, se resuelven empates con Julio y se anuncia al equipo.</p></div>
+    <div class="month"><span class="lbl">Mes siguiente</span><h3>Mañana libre</h3><p>Cada ganador elige un viernes del mes siguiente para tomar su mañana libre.</p></div>
+  </div>
+  <p class="foot">Liga AA · Advanced Analytics · Octubre 2026</p>
+</section>
+
+</main>
